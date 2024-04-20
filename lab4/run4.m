@@ -6,7 +6,7 @@ max_iterations = 100;
 [omega_bisection,ysolution_bisection,iterations_bisection,xtab_bisection,xdif_bisection] = bisection_method(a, b, max_iterations, ytolerance, @impedance_magnitude)
 [omega_secant,ysolution_secant,iterations_secant,xtab_secant,xdif_secant] = secant_method(a, b, max_iterations, ytolerance, @impedance_magnitude)
 
-figure
+f = figure
 subplot(2,1,1)
 plot(xtab_bisection, 'r')
 hold on
@@ -26,3 +26,4 @@ xlabel('iteracja')
 ylabel('wartość')
 hold off
 
+exportgraphics(f, 'graphs/4.png', 'Resolution', 800)
