@@ -29,7 +29,7 @@ function [V, original_Runge, original_sine, interpolated_Runge, interpolated_sin
 		c_runge = V{i} \ y_coarse';
 
 		interpolated_Runge{i} = polyval(flipud(c_runge), x_fine); % interpolacja
-		plot(x_fine, interpolated_Runge{i});
+		plot(x_fine, interpolated_Runge{i}, '--');
 	end
 	title('Interpolacja funkcji Rungego');
 	xlabel('x');
@@ -53,7 +53,7 @@ function [V, original_Runge, original_sine, interpolated_Runge, interpolated_sin
 		c_sine = V{i} \ y_coarse';
 
 		interpolated_sine{i} = polyval(flipud(c_sine), x_fine);
-		plot(x_fine, interpolated_sine{i});
+		plot(x_fine, interpolated_sine{i}, '--');
 	end
 	title('Interpolacja funkcji sinus');
 	xlabel('x');

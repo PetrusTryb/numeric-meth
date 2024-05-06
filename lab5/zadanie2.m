@@ -50,7 +50,7 @@ end
 
 function nodes = get_Chebyshev_nodes(N)
 	% oblicza N węzłów Czebyszewa drugiego rodzaju
-	nodes = cos(((0:N-1)+1)*pi/(N-1));
+	nodes = cos((0:(N-1))*pi/(N-1));
 end
 
 function V = vandermonde_matrix(N)

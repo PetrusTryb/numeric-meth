@@ -21,6 +21,8 @@ function [matrix_condition_numbers, max_coefficients_difference_1, max_coefficie
 	xlabel('N');
 	ylabel('cond(V)');
 	title('Wzrost współczynnika uwarunkowania macierzy Vandermonde wraz ze wzrostem jej rozmiaru');
+	f.Position(3) = 900;
+	f.Position(4) = 450;
 	
 	
 	%% chart 2
@@ -42,8 +44,10 @@ function [matrix_condition_numbers, max_coefficients_difference_1, max_coefficie
 	subplot(3,1,2);
 	plot(N, max_coefficients_difference_1);
 	xlabel('N');
+	ylim padded;
 	ylabel('max|c_{ref} - c_{calc}|');
 	title('Błąd wyznaczenia wartości współczynników wielomianu, dla wektora b zawierającego wartości funkcji liniowej');
+	yticks(0:10:60);
 	
 	%% chart 3
 	max_coefficients_difference_2 = zeros(1, length(N));
