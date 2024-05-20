@@ -19,10 +19,6 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 	%   - msek liczony jest dla aproksymacji wyznaczonych dla wektora x_fine
 	country = 'Poland';
 	source = 'Solar';
-	degrees = [1 3 7 8];
-	y_approximation = [];
-	mse = [];
-	msek = [];
 	% Sprawdzenie dostępności danych
 	if isfield(energy, country) && isfield(energy.(country), source)
 		% Przygotowanie danych do aproksymacji
@@ -36,8 +32,13 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 		P = (N-1)*10+1;
 		x_coarse = linspace(-1, 1, N)';
 		x_fine = linspace(-1, 1, P)';
+        degrees = floor(2:N/4:N);
+
+		y_approximation = cell(N-1, 1)';
+		mse = zeros(N-1, 1);
+		msek = zeros(N-2, 1);
 		% Pętla po wielomianach różnych stopni
-		for i = 1:N
+		for i = 1:N-1
 			p = my_polyfit(x_coarse, y_yearly, i);
 			y_approximation{i} = polyval(p, x_fine);
 			mse(i, 1) = mean((y_yearly - polyval(p, x_coarse)).^2);

@@ -20,21 +20,16 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 	
 	country = 'Poland';
 	source = 'Solar';
-	degrees = [];
 	x_coarse = [];
 	x_fine = [];
 	y_original = [];
 	y_yearly = [];
-	y_approximation = [];
-	mse = [];
-	msek = [];
 	
 	% Sprawdzenie dostępności danych
 	if isfield(energy, country) && isfield(energy.(country), source)
 		% Przygotowanie danych do aproksymacji
-		dates = energy.(country).(source).Dates;
 		y_original = energy.(country).(source).EnergyProduction;
-		y_original_mean = movmean(y_original,[11,0]);
+		% y_original_mean = movmean(y_original,[11,0]);
 	
 		% Obliczenie danych rocznych
 		n_years = floor(length(y_original) / 12);
@@ -42,13 +37,16 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 		y4sum = reshape(y_cut, [12 n_years]);
 		y_yearly = sum(y4sum,1)';
 	
-		degrees = ceil(3:(length(y_yearly)/4):length(y_yearly)-1);
-	
 		% Przygotowanie danych do aproksymacji
 		N = length(y_yearly);
 		P = (N-1)*8+1; % liczba wartości funkcji aproksymującej
 		x_coarse = linspace(0, 1, N)';
 		x_fine = linspace(0, 1, P)';
+		degrees = floor(2:N/4:N);
+
+		y_approximation = cell(N-1, 1)';
+		mse = zeros(N, 1);
+		msek = zeros(N-1, 1);
 	
 		% Pętla po wielomianach różnych stopni
 		previous = [];
@@ -62,37 +60,29 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 			previous = X;
 		end
 
-		x_original_dates = linspace(dates(1), dates(end), N);
-		x_fine_dates = linspace(dates(1), dates(end), P);
-
 		figure;
 		subplot(3,1,1);
-		plot(x_original_dates, y_yearly, 'k', 'DisplayName', 'Original data');
+		plot(x_coarse, y_yearly, 'k', 'DisplayName', 'Original data');
 		hold on;
 		for i = 1:length(degrees)
-			plot(x_fine_dates, y_approximation{degrees(i)}, 'DisplayName', ['Approximation degree: ', num2str(degrees(i))]);
+			plot(x_fine, y_approximation{degrees(i)}, 'DisplayName', ['Approximation degree: ', num2str(degrees(i))]);
 		end
 		title(['Approximation of energy production in ', country, ' from ', source]);
-		legend('Location', 'eastoutside');
+		legend('Location', 'northwest');
 		xlabel('Year');
 		ylabel('Energy production');
-		hold off;
 
 		subplot(3,1,2);
 		semilogy(mse);
-		axis padded;
 		title('Mean Squared Error for different polynomial degrees');
 		xlabel('Polynomial degree');
 		ylabel('MSE');
-		hold off;
 
 		subplot(3,1,3);
 		semilogy(msek);
-		axis padded;
 		xlabel('Polynomial degree');
 		ylabel('MSE_K');
 		title('Differential Mean Squared Error for different polynomial degrees');
-		hold off;
 		saveas(gcf, 'zadanie5.png');
 	
 	else
@@ -103,16 +93,16 @@ end
 
 function X = dct2_custom(x, kmax)
 % Wyznacza kmax pierwszych współczynników DCT-2 dla wektora wejściowego x.
-N = length(x);
-X = zeros(kmax, 1);
-c2 = sqrt(2/N);
-c3 = pi/2/N;
-nn = (1:N)';
+	N = length(x);
+	X = zeros(kmax, 1);
+	c2 = sqrt(2/N);
+	c3 = pi/2/N;
+	nn = (1:N)';
 
-X(1) = sqrt(1/N) * sum( x(nn) );
-for k = 2:kmax
-	X(k) = c2 * sum( x(nn) .* cos(c3 * (2*(nn-1)+1) * (k-1)) );
-end
+	X(1) = sqrt(1/N) * sum( x(nn) );
+	for k = 2:kmax
+		X(k) = c2 * sum( x(nn) .* cos(c3 * (2*(nn-1)+1) * (k-1)) );
+	end
 end
 
 function x = idct2_custom(X, kmax, N, P)
@@ -121,14 +111,15 @@ function x = idct2_custom(X, kmax, N, P)
 % kmax - liczba współczynników DCT zastosowanych do wyznaczenia wektora x
 % N - liczba danych dla których została wyznaczona macierz X
 % P - długość zwracanego wektora x (liczba wartości funkcji aproksymującej w przedziale [0,1])
-x = zeros(P, 1);
-kk = (2:kmax)';
-c1 = sqrt(1/N);
-c2 = sqrt(2/N);
-c3 = pi*(N - 1)/(2*N*(P - 1));
-c4 = -(pi*(N - P))/(2*N*(P - 1));
+	x = zeros(P, 1);
+	kk = (2:kmax)';
+	c1 = sqrt(1/N);
+	c2 = sqrt(2/N);
+	c3 = pi*(N - 1)/(2*N*(P - 1));
+	c4 = -(pi*(N - P))/(2*N*(P - 1));
 
-for n = 1:P
-	x(n) = c1*X(1) + c2*sum( X(kk) .* cos((c3*(2*(n-1)+1)+c4) * (kk-1)) );
+	for n = 1:P
+		x(n) = c1*X(1) + c2*sum( X(kk) .* cos((c3*(2*(n-1)+1)+c4) * (kk-1)) );
+	end
 end
-end
+	
