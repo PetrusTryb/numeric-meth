@@ -36,6 +36,7 @@ function [country, source, degrees, x_coarse, x_fine, y_original, y_yearly, y_ap
 		% Pętla po wielomianach różnych stopni
 		for i = 1:length(degrees)
 			p = my_polyfit(x_coarse, y_yearly, degrees(i));
+			disp(p)
 			y_approximation{i} = polyval(p, x_fine);
 			mse(i) = mean((y_yearly - polyval(p, x_coarse)).^2);
 		end
